@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<body>
+    <canvas id="myCanvas" width="500" height="500" style="border:1px solid #d3d3d3;">
+        Your browser does not support the HTML5 canvas tag.
+    </canvas>
+    <button onclick="submit()">Submit</button>
+
+    <script>
+        var canvas = document.getElementById('myCanvas');
+        var ctx = canvas.getContext('2d');
+        var img = new Image();
+        var points = JSON.parse('{{ result|safe }}');  // Django 템플릿에서 전달된 점의 좌표
+        console.log(points)
+        var radius = 10;
+        var drag = false;
+        var dragIndex;
+        var dragging;
+        var xratio, yratio;  // 이미지와 캔버스의 가로, 세로 크기 비율
+
+        img.onload = function() {
+            xratio = img.width / canvas.width;  // 이미지와 캔버스의 가로 크기 비율을 계산합니다.
+            yratio = img.height / canvas.height;  // 이미지와 캔버스의 세로 크기 비율을 계산합니다.
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            drawCircles();
+        };
+        img.src = '/media/{{ image_name }}';  // Django 템플릿에서 전달된 이미지 파일의 이름
+
+        function drawCircle(x, y) {
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, Math.PI*2);
+            ctx.fillStyle = "red";
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        function drawCircles() {
+            for (var i = 0; i < points.length; i++) {
+                drawCircle(points[i][0] / xratio, points[i][1] / yratio);  // 좌표를 각각의 비율로 나누어서 그립니다.
+            }
+        }
+
+        function clearCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function submit() {
+            var adjustedPoints = points.map(function(point) {
+                return [point[0] * xratio, point[1] * yratio];  // 좌표를 각각의 비율로 곱하여 원래 크기로 변환합니다.
+            });
+            fetch('/scan/update-points/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify(adjustedPoints)
+            }).then(function(response) {
+                return response.json();  // 응답을 JSON으로 파싱합니다.
+            }).then(function(data) {
+                console.log('updated:', data);
+                if (data.status === 'ok') {  // 응답이 'ok'이면 페이지를 전환합니다.
+                    window.location.href = '/scan/page3/';
+                }
+            });
+        }
+
+        // 다음은 드래그 이벤트를 처리하는 코드입니다.
+
+        canvas.addEventListener('mousedown', function(e) {
+            var mouseX = e.pageX - this.offsetLeft;
+            var mouseY = e.pageY - this.offsetTop;
+
+            for (var i = 0; i < points.length; i++) {
+                if (Math.abs(mouseX - points[i][0] / xratio) < radius && Math.abs(mouseY - points[i][1] / yratio) < radius) {
+                    drag = true;
+                    dragIndex = i;
+                }
+            }
+        });
+
+        canvas.addEventListener('mousemove', function(e) {
+            if (drag) {
+                var mouseX = e.pageX - this.offsetLeft;
+                var mouseY = e.pageY - this.offsetTop;
+                points[dragIndex] = [mouseX * xratio, mouseY * yratio];
+                clearCanvas();
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                drawCircles();
+            }
+        });
+
+        canvas.addEventListener('mouseup', function(e) {
+            drag = false;
+        });
+    </script>
+</body>
+</html>
