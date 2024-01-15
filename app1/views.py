@@ -14,7 +14,7 @@ def upload_image(request):
         uploaded_file = request.FILES['document']
         fs = FileSystemStorage()
         name = fs.save(uploaded_file.name, uploaded_file)
-        result = temp1(name)  # temp1 함수를 실행합니다.
+        result = temp1(name)  #####################
         context['result'] = json.dumps(result)  # JSON 형식으로 변환합니다.
         context['image_name'] = name
         return render(request, 'app1/page2.html', context)
@@ -23,8 +23,12 @@ def upload_image(request):
 @csrf_exempt
 def update_points(request):
     if request.method == 'POST':
-        points = json.loads(request.body)
-        print(points)
+        points = json.loads(request.body)####################
+        print(points) 
+        
+        #사용자가 수정한 4개의 점 -> 스캔결과 끝
+
+
         # points를 저장하거나 처리하는 코드를 여기에 작성합니다.
         return JsonResponse({'status': 'ok'})  # JSON 응답을 반환합니다.
     else:
