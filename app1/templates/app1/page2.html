@@ -66,7 +66,7 @@
 
         function submit() {
             var adjustedPoints = points.map(function(point) {
-                return [point[0] * xratio, point[1] * yratio];  // 좌표를 각각의 비율로 곱하여 원래 크기로 변환합니다.
+                return [Math.round(point[0] * xratio), Math.round(point[1] * yratio)];
             });
             fetch('/scan/update-points/', {
                 method: 'POST',
@@ -103,7 +103,8 @@
             if (drag) {
                 var mouseX = e.pageX - this.offsetLeft;
                 var mouseY = e.pageY - this.offsetTop;
-                points[dragIndex] = [mouseX * xratio, mouseY * yratio];
+                points[dragIndex] = [Math.round(mouseX * xratio), Math.round(mouseY * yratio)];
+                
                 clearCanvas();
                 ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
                 drawCircles();
