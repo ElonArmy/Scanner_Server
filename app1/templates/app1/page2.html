@@ -19,6 +19,26 @@
         var xratio, yratio;  // 이미지와 캔버스의 가로, 세로 크기 비율
 
         img.onload = function() {
+            // 이미지 비율에 따라 캔버스 크기 조정
+            var maxWidth = 500;  // 최대 너비
+            var maxHeight = 500; // 최대 높이
+            var imgRatio = img.width / img.height;
+            var canvasWidth, canvasHeight;
+
+
+            if (img.width > img.height) {
+                // 가로가 긴 이미지
+                canvasWidth = maxWidth;
+                canvasHeight = maxWidth / imgRatio;
+            } else {
+                // 세로가 긴 이미지
+                canvasHeight = maxHeight;
+                canvasWidth = maxHeight * imgRatio;
+            }
+
+            canvas.width = canvasWidth;
+            canvas.height = canvasHeight;
+
             xratio = img.width / canvas.width;  // 이미지와 캔버스의 가로 크기 비율을 계산합니다.
             yratio = img.height / canvas.height;  // 이미지와 캔버스의 세로 크기 비율을 계산합니다.
             ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
