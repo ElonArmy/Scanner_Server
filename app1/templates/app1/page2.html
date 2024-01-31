@@ -66,7 +66,7 @@
 
         function submit() {
             var adjustedPoints = points.map(function(point) {
-                return [Math.round(point[0] ), Math.round(point[1] )];
+                return [Math.round(point[0]), Math.round(point[1])];
             });
             fetch('/scan/update-points/', {
                 method: 'POST',
@@ -76,12 +76,20 @@
                 },
                 body: JSON.stringify(adjustedPoints)
             }).then(function(response) {
-                return response.json();  // 응답을 JSON으로 파싱합니다.
+                console.log(response.status); // 상태 코드 출력
+                // 여기에서 상태 코드를 확인합니다.
+                if (response.status === 200) {
+                    window.location.href = '/scan/page3/';
+                    return response.json();  // 성공 응답을 JSON으로 파싱합니다.
+                } else {
+                    throw new Error('Network response was not ok.');
+                }
             }).then(function(data) {
                 console.log('updated:', data);
-                if (data.status === 'ok') {  // 응답이 'ok'이면 페이지를 전환합니다.
-                    window.location.href = '/scan/page3/';
-                }
+                // 성공적으로 처리된 후 페이지 전환
+                window.location.href = '/scan/page3/';
+            }).catch(function(error) {
+                console.error('Fetch error:', error);
             });
         }
 

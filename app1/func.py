@@ -1,17 +1,31 @@
 # func.py
 import os
 from PIL import Image
-import random
+import requests
 
 def temp1(image_name):
-    image_path = os.path.join('media', image_name)  # 이미지 경로를 설정합니다.
-    with Image.open(image_path) as img:
-        width, height = img.size  # 이미지의 너비와 높이를 가져옵니다.
-    points = []
-    for _ in range(4):  # 4개의 랜덤한 좌표를 생성합니다.
-        x = random.randint(0, width - 1)
-        y = random.randint(0, height - 1)
-        points.append((x, y))
+    image_path = os.path.join('media', image_name)  # 이미지 경로설정
+    
+    # 여기에 예측된 점을 가져와야함
+    # points = [[714, 461], [2505, 644],[223, 3553], [2488, 3654]]    
+    
+    # 모델 API URL 로컬호스트주소
+    url = 'http://127.0.0.1:5000/predict'
+    
+    # 이미지 파일을 바이너리 형식으로 열기
+    with open(image_path, 'rb') as img_file:
+        # API에 POST 요청 보내기
+        response = requests.post(url, files={'file': img_file})
+        
+    # API 응답 확인 및 처리
+    if response.status_code == 200:
+        # 예측된 좌표 추출
+        points = response.json()
+    else:
+        # 에러 처리 임시값으로 제공
+        points = [[400, 461], [500, 644],[223, 600], [500, 600]]  
+        # points = None
+        
     return points
 
 
