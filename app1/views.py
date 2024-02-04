@@ -28,7 +28,7 @@ def update_points(request):
         print(points) 
         #사용자가 최종 수정한 점을 모델에 보내서 이미지 변환 수행해야함
         
-        # 모델 API의 엔드포인트 URL
+        # 모델 API의 엔드포인트 URL == 플라스크 서버
         model_api_url = 'http://127.0.0.1:5000/perspective_transform'
         
         # 모델 API로 POST 요청, 좌표를 보낸다.
